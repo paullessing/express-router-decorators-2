@@ -5,8 +5,8 @@ import request from 'supertest';
 
 class TestRouter {
   @Get('/')
-  public handleRoot(req: express.Request): void {
-    return null;
+  public handleRoot(req: express.Request, res: express.Response): void {
+    res.end('DONE');
   }
 }
 
