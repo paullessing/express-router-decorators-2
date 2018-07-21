@@ -1,0 +1,14 @@
+{
+  "name": "express-router-decorators",
+  "version": "0.0.1",
+  "main": "index.js",
+  "author": "Paul Lessing <paul@paullessing.com>",
+  "license": "MIT",
+  "private": false,
+  "scripts": {
+    "build": "tsc"
+  },
+  "devDependencies": {
+    "typescript": "^2.9.2"
+  }
+}
