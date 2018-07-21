@@ -6,9 +6,10 @@
   "license": "MIT",
   "private": false,
   "scripts": {
-    "build": "tsc"
+    "build": "tsc -p src"
   },
   "devDependencies": {
+    "@types/express": "^4.16.0",
     "typescript": "^2.9.2"
   }
 }
