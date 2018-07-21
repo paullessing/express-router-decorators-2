@@ -8,7 +8,7 @@ export function useRoutes(app: Router, routerInstance: object): Router {
   }
 
   const definitions: MethodDefinition[] = Reflect.getMetadata(METADATA_KEY_METHODS, routerInstance);
-  for (const definition of definitions.slice().reverse()) {
+  for (const definition of definitions) {
     const property = (routerInstance as any)[definition.property].bind(routerInstance);
     if (definition.method === 'ANY') {
       app.use(definition.path, property);

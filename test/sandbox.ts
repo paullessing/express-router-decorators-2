@@ -1,11 +1,15 @@
-import * as express from 'express';
+import express from 'express';
 import { Get } from '../src/http-methods';
 import { useRoutes } from '../src';
 
 class Foo {
   @Get('/')
-  public handle(): void {}
+  public handle(req, res): void {
+    res.send('Hello World').end();
+  }
 }
 
-const app = express.Router();
+const app = express();
 useRoutes(app, new Foo());
+
+app.listen(3000);
