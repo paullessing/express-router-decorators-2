@@ -2,7 +2,6 @@ import 'reflect-metadata';
 
 import { HttpVerb, METADATA_KEY_METHODS, MethodDefinition, PathParams } from './metadata';
 
-
 export function HttpMethod(verb: HttpVerb): (path: PathParams) => MethodDecorator & PropertyDecorator {
   return (path: PathParams): MethodDecorator & PropertyDecorator => {
     return <T = any>(

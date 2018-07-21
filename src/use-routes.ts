@@ -10,12 +10,8 @@ export function useRoutes(app: Router, routerInstance: object): Router {
   const definitions: MethodDefinition[] = Reflect.getMetadata(METADATA_KEY_METHODS, routerInstance);
   for (const definition of definitions) {
     const property = (routerInstance as any)[definition.property].bind(routerInstance);
-    if (definition.method === 'ANY') {
-      app.use(definition.path, property);
-    } else {
-      const verb = definition.method.toLowerCase();
-      ((app as any)[verb] as IRouterMatcher<any>)(definition.path, property);
-    }
+    const verb = definition.method.toLowerCase();
+    ((app as any)[verb] as IRouterMatcher<any>)(definition.path, property);
   }
 
   return app;
