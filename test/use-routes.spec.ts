@@ -3,26 +3,10 @@ import express from 'express';
 import request from 'supertest';
 import { createRouter } from './test-helper';
 
-class TestRouter {
-  @Get('/')
-  public handleRoot(req: express.Request, res: express.Response): void {
-    res.end('DONE');
-  }
-}
-
 describe('useRoutes()', () => {
-  let router: TestRouter;
-  let app: express.Router;
-
-  beforeEach(() => {
-    app = express.Router();
-    router = new TestRouter();
-    useRoutes(app, router);
-  });
-
   it('should return the express router instance', () => {
-    app = express.Router();
-    router = new TestRouter();
+    const app = express.Router();
+    const router = {};
 
     const result = useRoutes(app, router);
 
