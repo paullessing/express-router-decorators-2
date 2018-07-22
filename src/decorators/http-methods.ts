@@ -1,6 +1,4 @@
-import 'reflect-metadata';
-
-import { addMetadata, HttpVerb, MethodDefinition, PathParams } from '../metadata';
+import { addMethodMetadata, HttpVerb, MethodDefinition, PathParams } from './metadata';
 
 export function HttpMethod(verb: HttpVerb): (path: PathParams) => MethodDecorator & PropertyDecorator {
   return (path: PathParams): MethodDecorator & PropertyDecorator => {
@@ -21,7 +19,7 @@ function addMethod(target: any, property: string | symbol, method: HttpVerb, pat
     method,
     path
   };
-  addMetadata(target, entry);
+  addMethodMetadata(target, entry);
 }
 
 export const Get     = HttpMethod('GET');

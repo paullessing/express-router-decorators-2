@@ -1,6 +1,8 @@
+import 'reflect-metadata';
 import { Handler } from 'express';
 
 export const METADATA_KEY_METHODS = 'express-router-decorators:methods';
+export const METADATA_KEY_ROUTES = 'express-router-decorators:routes';
 
 export type PathParams = string | RegExp | (string | RegExp)[];
 export type HttpVerb = 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE' | 'OPTIONS' | 'HEAD';
@@ -29,9 +31,37 @@ export function isMiddlewareDefinition(definition: MetadataDefinition): definiti
   return definition.type === 'middleware';
 }
 
-export type MetadataDefinition = MethodDefinition | MiddlewareDefinition;
-
 export function addMetadata(target: any, entry: MetadataDefinition): void {
   const metadata: MethodDefinition[] = Reflect.getMetadata(METADATA_KEY_METHODS, target) || [];
   Reflect.defineMetadata(METADATA_KEY_METHODS, [...metadata, entry], target);
+}
+
+export interface MethodDefinition extends BaseMetadataDefinition {
+  type: 'method';
+  method: HttpVerb;
+}
+
+export interface MiddlewareDefinition extends BaseMetadataDefinition {
+  type: 'middleware';
+}
+
+export type MetadataDefinition = MethodDefinition | MiddlewareDefinition;
+
+export function addMethodMetadata(target: any, entry: MetadataDefinition): void {
+  const metadata: MethodDefinition[] = Reflect.getMetadata(METADATA_KEY_METHODS, target) || [];
+  const constructr = findConstructor(target);
+  Reflect.defineMetadata(METADATA_KEY_METHODS, [...metadata, entry], constructr);
+}
+
+export function addRouteMetadata(target: any, path: PathParams): void {
+  const metadata: (string | RegExp)[] = Reflect.getMetadata(METADATA_KEY_ROUTES, target) || [];
+  const constructr = findConstructor(target);
+  Reflect.defineMetadata(METADATA_KEY_ROUTES, metadata.concat(path), constructr);
+}
+
+function findConstructor(target: any): Function {
+  while (target.constructor && target.constructor !== Function) {
+    target = target.constructor;
+  }
+  return target;
 }

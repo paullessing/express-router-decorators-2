@@ -1,9 +1,9 @@
 import { Get } from '../src';
 import { Router } from '../src/router.decorator';
+import express from 'express';
 
 @Router()
 class Foo {
-
   constructor(arg: string) {
     console.log('Constructed with', arg);
   }
@@ -18,18 +18,12 @@ class Foo {
   }
 }
 
-const foo = new Foo('foobar') as any;
+const foo = new Foo('foobar');
 
-foo();
+// console.log('Is Foo', foo instanceof Foo);
+// console.log(foo.prototype);
 
-console.log('Is Foo', foo instanceof Foo);
-console.log(foo.prototype);
+const app = express();
+app.use(Router.create(foo));
 
-foo.greet();
-
-//
-// const app = express();
-// const foo = new Foo() as any;
-// app.use(foo);
-//
-// app.listen(3000);
+app.listen(3000);
