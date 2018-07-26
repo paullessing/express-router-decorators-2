@@ -1,7 +1,6 @@
-import { Router } from '../src/router.decorator';
-import { Get } from '../src';
+import { Get, Router } from '../../src';
 import express from 'express';
-import { createRouter } from './test-helper';
+import { createRouter } from '../test-helper';
 import request from 'supertest';
 
 describe('@Router()', () => {
