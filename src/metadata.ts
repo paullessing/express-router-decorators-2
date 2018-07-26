@@ -13,7 +13,7 @@ interface ClassMetadata {
 }
 
 interface BaseEndpointMetadata {
-  type: 'method' | 'middleware';
+  type: 'method' | 'middleware' | 'use';
   property: string | symbol;
 }
 
@@ -36,7 +36,16 @@ export function isMiddlewareMetadata(definition: EndpointMetadata): definition i
   return definition.type === 'middleware';
 }
 
-export type EndpointMetadata = EndpointMethodMetadata | EndpointMiddlewareMetadata;
+export interface EndpointUseMetadata extends BaseEndpointMetadata {
+  type: 'use';
+  path: PathParams;
+}
+
+export function isUseMetadata(definition: EndpointMetadata): definition is EndpointUseMetadata {
+  return definition.type === 'use';
+}
+
+export type EndpointMetadata = EndpointMethodMetadata | EndpointMiddlewareMetadata | EndpointUseMetadata;
 
 export function addEndpointMetadata(target: any, entry: EndpointMetadata): void {
   const metadata = getClassMetadata(target);

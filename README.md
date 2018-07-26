@@ -84,6 +84,9 @@ class UserRouter {
 ```
 
 ## Middleware
+There are two ways of applying middleware to a method: statically or as properties.
+
+### Static Middleware
 To apply a static middleware function, use the `@Middleware` decorator:
 ```
 const transformRequest = (req: express.Request, res: express.Response, next: express.NextFunction): void => {
@@ -111,4 +114,49 @@ Middleware will apply to all request types on the method:
 @Middleware(middleware) // Executed on GET / and on POST /post
 @Get('/')
 @Post('/post');
+```
+
+### Property Middleware
+The equivalent to using Express's `.use()` method is the `@Use()` decorator:
+```
+@Post('/user') // NOT Authenticated since it appears before the @Use declaration
+public getUserDetails(req: express.Request, res: express.Response): void {
+  // ...
+}
+
+@Use('/user')
+public authenticate(req: express.Request, res: express.Response, next: express.NextFunction): void {
+  if (this.authenticationService.isAuthenticated(req)) {
+    next();
+  } else {
+    res.status(401).end();
+  }
+}
+
+@Get('/user/me') // Authenticated by the "authenticate" function
+public getUserDetails(req: express.Request, res: express.Response): void {
+  // ...
+}
+
+@Get('/login') // NOT Authenticated since the URL does not match
+public getUserDetails(req: express.Request, res: express.Response): void {
+  // ...
+}
+```
+
+## Child Routers
+To declare a child router, use the `@Use` declaration on a property that's not a function.
+
+This will call `useRoutes()` on that object and treat it as a new router.
+
+```
+class BaseRouter {
+  @Use('/user')
+  public userRouter: UserRouter;
+}
+
+class UserRouter {
+  @Get('/profile') // Calls to /user/profile will map here
+  public getProfile(...) {...}
+}
 ```
