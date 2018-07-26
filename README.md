@@ -71,6 +71,17 @@ useRoutes(app, router);
 export = app;
 ```
 
+## Router
+To map an entire router to a path (or a set of paths), use the `@Router` decorator:
+```
+@Router('/user')
+class UserRouter {
+  @Get('profile) // Accessible under /user/profile
+  public getProfile(req: express.Request, res: express.Response): void {
+    // ...
+  }
+}
+```
 
 ## Middleware
 To apply a static middleware function, use the `@Middleware` decorator:

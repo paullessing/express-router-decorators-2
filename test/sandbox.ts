@@ -1,4 +1,4 @@
-import { Get } from '../src';
+import { Get, useRoutes } from '../src';
 import { Router } from '../src/router.decorator';
 import express from 'express';
 
@@ -24,6 +24,6 @@ const foo = new Foo('foobar');
 // console.log(foo.prototype);
 
 const app = express();
-app.use(Router.create(foo));
+useRoutes(app, foo);
 
 app.listen(3000);
