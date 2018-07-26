@@ -1,5 +1,5 @@
 import express from 'express';
-import { Get } from '../src/http-methods';
+import { Get } from '../src/decorators/http-methods';
 import { useRoutes } from '../src';
 
 class Foo {
