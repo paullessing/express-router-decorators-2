@@ -1,6 +1,7 @@
 import * as ExpressMethod from './decorators/http-methods.decorator';
 
 export * from './use-routes';
+export * from './response';
 export * from './decorators/http-methods.decorator';
 export * from './decorators/middleware.decorator';
 export * from './decorators/router.decorator';
