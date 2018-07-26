@@ -1,7 +1,7 @@
-import * as ExpressMethod from './http-methods';
+import * as ExpressMethod from './decorators/http-methods';
 
 export * from './use-routes';
-export * from './http-methods';
+export * from './decorators/http-methods';
 export {
   ExpressMethod
 };

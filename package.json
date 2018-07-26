@@ -8,7 +8,7 @@
   "scripts": {
     "build": "tsc -p src",
     "test": "jest",
-    "sandbox": "nodemon --watch '**/*.ts' --ignore '**/*.spec.ts' --exec ts-node --project test/tsconfig.json test/sandbox.ts"
+    "sandbox": "nodemon -e ts --ignore '**/*.spec.ts' --exec ts-node --project test/tsconfig.json test/sandbox.ts"
   },
   "dependencies": {
     "reflect-metadata": "^0.1.12"

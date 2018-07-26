@@ -1,6 +1,4 @@
-import 'reflect-metadata';
-
-import { HttpVerb, METADATA_KEY_METHODS, MethodDefinition, PathParams } from './metadata';
+import { addEndpointMetadata, HttpVerb, EndpointMetadata, PathParams } from '../metadata';
 
 export function HttpMethod(verb: HttpVerb): (path: PathParams) => MethodDecorator & PropertyDecorator {
   return (path: PathParams): MethodDecorator & PropertyDecorator => {
@@ -15,13 +13,13 @@ export function HttpMethod(verb: HttpVerb): (path: PathParams) => MethodDecorato
 }
 
 function addMethod(target: any, property: string | symbol, method: HttpVerb, path: PathParams): void {
-  const metadata: MethodDefinition[] = Reflect.getMetadata(METADATA_KEY_METHODS, target) || [];
-  const entry: MethodDefinition = {
+  const entry: EndpointMetadata = {
+    type: 'method',
     property,
     method,
     path
   };
-  Reflect.defineMetadata(METADATA_KEY_METHODS, [...metadata, entry], target);
+  addEndpointMetadata(target, entry);
 }
 
 export const Get     = HttpMethod('GET');

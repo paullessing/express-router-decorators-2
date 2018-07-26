@@ -1,18 +1,9 @@
-import { Delete, Get, Post, useRoutes } from '../src';
+import { Delete, Get, Post } from '../src';
 import express from 'express';
 import request from 'supertest';
 import { createRouter } from './test-helper';
 
 describe('useRoutes()', () => {
-  it('should return the express router instance', () => {
-    const app = express.Router();
-    const router = {};
-
-    const result = useRoutes(app, router);
-
-    expect(result).toBe(app);
-  });
-
   it('should evaluate methods in the order they appear in the source, ignoring specificity', async () => {
     const body = { success: true };
 
@@ -40,6 +31,53 @@ describe('useRoutes()', () => {
     }
 
     const router = createRouter(new MultiMethods());
+    const response = await request(router).get('/test/specific');
+
+    expect(response.status).toBe(200);
+    expect(response.body).toEqual(body);
+  });
+
+  it('should evaluate specific methods before ones with router params if the specific ones come first', async () => {
+    const body = { success: true };
+
+    class SpecificAndGenericMethods {
+
+      @Get('/test/specific')
+      public handleSpecific(_: express.Request, res: express.Response) {
+        res.send(body).end();
+      }
+
+      @Get('/test/:id')
+      public handleGeneric(_: express.Request, res: express.Response) {
+        res.status(500).end();
+      }
+    }
+
+    const router = createRouter(new SpecificAndGenericMethods());
+    const response = await request(router).get('/test/specific');
+
+    expect(response.status).toBe(200);
+    expect(response.body).toEqual(body);
+  });
+
+  it('should evaluate methods with router params before specific ones if the specific ones come first ' +
+    '(this is usually wrong setup, but we want to be consistent)', async () => {
+    const body = { success: true };
+
+    class SpecificAndGenericMethods {
+
+      @Get('/test/:id')
+      public handleGeneric(_: express.Request, res: express.Response) {
+        res.send(body).end();
+      }
+
+      @Get('/test/specific')
+      public handleSpecific(_: express.Request, res: express.Response) {
+        res.status(500).end();
+      }
+    }
+
+    const router = createRouter(new SpecificAndGenericMethods());
     const response = await request(router).get('/test/specific');
 
     expect(response.status).toBe(200);

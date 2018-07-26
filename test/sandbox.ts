@@ -1,15 +1,29 @@
+import { Get, useRoutes } from '../src';
+import { Router } from '../src/router.decorator';
 import express from 'express';
-import { Get } from '../src/http-methods';
-import { useRoutes } from '../src';
 
+@Router()
 class Foo {
+  constructor(arg: string) {
+    console.log('Constructed with', arg);
+  }
+
   @Get('/')
   public handle(req, res): void {
     res.send('Hello World').end();
   }
+
+  public greet(): void {
+    console.log('Hi THere');
+  }
 }
 
+const foo = new Foo('foobar');
+
+// console.log('Is Foo', foo instanceof Foo);
+// console.log(foo.prototype);
+
 const app = express();
-useRoutes(app, new Foo());
+useRoutes(app, foo);
 
 app.listen(3000);
