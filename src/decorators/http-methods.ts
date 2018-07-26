@@ -1,4 +1,4 @@
-import { addMethodMetadata, HttpVerb, MethodDefinition, PathParams } from './metadata';
+import { addEndpointMetadata, HttpVerb, EndpointMetadata, PathParams } from '../metadata';
 
 export function HttpMethod(verb: HttpVerb): (path: PathParams) => MethodDecorator & PropertyDecorator {
   return (path: PathParams): MethodDecorator & PropertyDecorator => {
@@ -13,13 +13,13 @@ export function HttpMethod(verb: HttpVerb): (path: PathParams) => MethodDecorato
 }
 
 function addMethod(target: any, property: string | symbol, method: HttpVerb, path: PathParams): void {
-  const entry: MethodDefinition = {
+  const entry: EndpointMetadata = {
     type: 'method',
     property,
     method,
     path
   };
-  addMethodMetadata(target, entry);
+  addEndpointMetadata(target, entry);
 }
 
 export const Get     = HttpMethod('GET');

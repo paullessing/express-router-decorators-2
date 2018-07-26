@@ -1,62 +1,70 @@
 import 'reflect-metadata';
 import { Handler } from 'express';
 
-export const METADATA_KEY_METHODS = 'express-router-decorators:methods';
-export const METADATA_KEY_ROUTES = 'express-router-decorators:routes';
+const METADATA_KEY = 'express-router-decorators:data';
 
-export type PathParams = string | RegExp | (string | RegExp)[];
+export type SinglePath = string | RegExp;
+export type PathParams = SinglePath | SinglePath[];
 export type HttpVerb = 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE' | 'OPTIONS' | 'HEAD';
 
-interface BaseMetadataDefinition {
+interface ClassMetadata {
+  routes: SinglePath[];
+  endpoints: EndpointMetadata[];
+}
+
+interface BaseEndpointMetadata {
   type: 'method' | 'middleware';
   property: string | symbol;
 }
 
-export interface MethodDefinition extends BaseMetadataDefinition {
+export interface EndpointMethodMetadata extends BaseEndpointMetadata {
   type: 'method';
   path: PathParams;
   method: HttpVerb;
 }
 
-export function isMethodDefinition(definition: MetadataDefinition): definition is MethodDefinition {
+export function isMethodMetadata(definition: EndpointMetadata): definition is EndpointMethodMetadata {
   return definition.type === 'method';
 }
 
-export interface MiddlewareDefinition extends BaseMetadataDefinition {
+export interface EndpointMiddlewareMetadata extends BaseEndpointMetadata {
   type: 'middleware';
   handler: Handler;
 }
 
-export function isMiddlewareDefinition(definition: MetadataDefinition): definition is MiddlewareDefinition {
+export function isMiddlewareMetadata(definition: EndpointMetadata): definition is EndpointMiddlewareMetadata {
   return definition.type === 'middleware';
 }
 
-export function addMetadata(target: any, entry: MetadataDefinition): void {
-  const metadata: MethodDefinition[] = Reflect.getMetadata(METADATA_KEY_METHODS, target) || [];
-  Reflect.defineMetadata(METADATA_KEY_METHODS, [...metadata, entry], target);
-}
+export type EndpointMetadata = EndpointMethodMetadata | EndpointMiddlewareMetadata;
 
-export interface MethodDefinition extends BaseMetadataDefinition {
-  type: 'method';
-  method: HttpVerb;
-}
-
-export interface MiddlewareDefinition extends BaseMetadataDefinition {
-  type: 'middleware';
-}
-
-export type MetadataDefinition = MethodDefinition | MiddlewareDefinition;
-
-export function addMethodMetadata(target: any, entry: MetadataDefinition): void {
-  const metadata: MethodDefinition[] = Reflect.getMetadata(METADATA_KEY_METHODS, target) || [];
-  const constructr = findConstructor(target);
-  Reflect.defineMetadata(METADATA_KEY_METHODS, [...metadata, entry], constructr);
+export function addEndpointMetadata(target: any, entry: EndpointMetadata): void {
+  const metadata = getClassMetadata(target);
+  setClassMetadata(target, {
+    ...metadata,
+    endpoints: [...metadata.endpoints, entry]
+  });
 }
 
 export function addRouteMetadata(target: any, path: PathParams): void {
-  const metadata: (string | RegExp)[] = Reflect.getMetadata(METADATA_KEY_ROUTES, target) || [];
+  const metadata = getClassMetadata(target);
+  setClassMetadata(target, {
+    ...metadata,
+    routes: ([] as SinglePath[]).concat(path).concat(metadata.routes)
+  });
+}
+
+export function getClassMetadata(target: any): ClassMetadata {
   const constructr = findConstructor(target);
-  Reflect.defineMetadata(METADATA_KEY_ROUTES, metadata.concat(path), constructr);
+  return Reflect.getMetadata(METADATA_KEY, constructr) || {
+    endpoints: [],
+    routes: []
+  };
+}
+
+function setClassMetadata(target: any, metadata: ClassMetadata): void {
+  const constructr = findConstructor(target);
+  Reflect.defineMetadata(METADATA_KEY, metadata, constructr);
 }
 
 function findConstructor(target: any): Function {

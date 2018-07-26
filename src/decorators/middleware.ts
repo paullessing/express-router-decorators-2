@@ -1,5 +1,5 @@
-import { addMetadata } from '../metadata';
 import { Handler } from 'express';
+import { addEndpointMetadata } from '../metadata';
 
 // TODO this should be available on a class level, too
 export function Middleware(handler: Handler): MethodDecorator & PropertyDecorator {
@@ -8,7 +8,7 @@ export function Middleware(handler: Handler): MethodDecorator & PropertyDecorato
     property: string | symbol,
     // descriptor?: TypedPropertyDescriptor<T> // Only used for Methods
   ): TypedPropertyDescriptor<T> | void => {
-    addMetadata(target, {
+    addEndpointMetadata(target, {
       type: 'middleware',
       property,
       handler

@@ -1,17 +1,15 @@
 import { IRouterMatcher, Router } from 'express';
-import 'reflect-metadata';
 import {
-  isMethodDefinition,
-  isMiddlewareDefinition,
-  METADATA_KEY_METHODS,
-  MetadataDefinition,
-  MethodDefinition
+  isMethodMetadata,
+  isMiddlewareMetadata,
+  EndpointMetadata,
+  EndpointMethodMetadata, getClassMetadata
 } from './metadata';
 
-const getMetadataByProperty = (definitions: MetadataDefinition[]) => {
+const getMetadataByProperty = (definitions: EndpointMetadata[]) => {
   const definitionsByProperty: {
     propertyName: string | symbol;
-    definitions: MetadataDefinition[];
+    definitions: EndpointMetadata[];
   }[] = [];
 
   outer: for (const definition of definitions) {
@@ -30,29 +28,39 @@ const getMetadataByProperty = (definitions: MetadataDefinition[]) => {
   return definitionsByProperty;
 };
 
-export function useRoutes(app: Router, routerInstance: object): Router {
-  if (!Reflect.hasMetadata(METADATA_KEY_METHODS, routerInstance)) {
-    return app;
+export function useRoutes(app: Router, routerInstance: object): void {
+  const metadata = getClassMetadata(routerInstance);
+
+  if (!metadata.endpoints.length && !metadata.routes.length) {
+    return;
   }
 
-  const definitions: MetadataDefinition[] = Reflect.getMetadata(METADATA_KEY_METHODS, routerInstance);
-  const metadataByProperty = getMetadataByProperty(definitions);
+  const router = Router();
+
+  const metadataByProperty = getMetadataByProperty(metadata.endpoints);
 
   for (const metadata of metadataByProperty) {
+
     const propertyName = metadata.propertyName;
     const property = (routerInstance as any)[propertyName].bind(routerInstance);
 
     const middleware = metadata.definitions
-      .filter(isMiddlewareDefinition)
+      .filter(isMiddlewareMetadata)
       .map((definition) => definition.handler)
-      .reverse(); // Method decorators are evaluated in reverse order
-    const methods = metadata.definitions.filter<MethodDefinition>(isMethodDefinition);
+      .reverse(); // Method decorators are evaluated in reverse order on the method
+    const methods = metadata.definitions.filter<EndpointMethodMetadata>(isMethodMetadata);
 
     for (const methodMetadata of methods) {
       const verb = methodMetadata.method.toLowerCase() as keyof Router;
-      (app[verb] as IRouterMatcher<any>).apply(app, [methodMetadata.path, ...middleware, property]);
+      (router[verb] as IRouterMatcher<any>).apply(router, [methodMetadata.path, ...middleware, property]);
     }
   }
 
-  return app;
+  if (!metadata.routes.length) {
+    app.use(router);
+  } else {
+    const wrapperRouter = Router();
+    wrapperRouter.use(metadata.routes, router);
+    app.use(wrapperRouter);
+  }
 }

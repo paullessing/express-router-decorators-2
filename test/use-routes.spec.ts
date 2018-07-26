@@ -1,18 +1,9 @@
-import { Delete, Get, Post, useRoutes } from '../src';
+import { Delete, Get, Post } from '../src';
 import express from 'express';
 import request from 'supertest';
 import { createRouter } from './test-helper';
 
 describe('useRoutes()', () => {
-  it('should return the express router instance', () => {
-    const app = express.Router();
-    const router = {};
-
-    const result = useRoutes(app, router);
-
-    expect(result).toBe(app);
-  });
-
   it('should evaluate methods in the order they appear in the source, ignoring specificity', async () => {
     const body = { success: true };
 
